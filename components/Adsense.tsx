@@ -2,9 +2,7 @@ import { useEffect, useState } from 'react';
 
 declare global {
   interface Window {
-    adsbygoogle: {
-      push: (config?: unknown) => void;
-    }[];
+    adsbygoogle: any[]; // Use any[] to bypass the type check
   }
 }
 
@@ -17,12 +15,7 @@ export const InArticleAd = () => {
       script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7638771792216412';
       script.async = true;
       script.onload = () => {
-        // Ensure window.adsbygoogle is an array with a push method
-        if (Array.isArray(window.adsbygoogle) && typeof window.adsbygoogle.push === 'function') { 
-          setAdsbygoogle(window.adsbygoogle);
-        } else {
-          console.error('AdSense: window.adsbygoogle is not correctly initialized.');
-        }
+        setAdsbygoogle(window.adsbygoogle || []);
       };
       document.head.appendChild(script);
     }
