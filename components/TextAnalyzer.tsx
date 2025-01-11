@@ -50,6 +50,7 @@ export default function TextAnalyzer() {
           placeholder="Paste your text here (up to 3000 words)..."
           value={text}
           onChange={(e) => setText(e.target.value)}
+		  </div>
         />
 
       <div className="flex justify-between items-center mt-4">
