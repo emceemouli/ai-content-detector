@@ -1,9 +1,6 @@
 import { useState } from 'react';
-import Head from 'next/head'; 
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { analyzeText } from '../utils/textAnalysis';
-import { InArticleAd } from './Adsense'; 
-
 
 interface AnalysisResult {
   score: number;
@@ -37,21 +34,15 @@ export default function TextAnalyzer() {
   };
 
   return (
-   <> 
-      <Head> 
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7638771792216412"
-          crossorigin="anonymous"></script>
-      </Head>
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <textarea
-          className="w-full h-64 p-4 border-2 border-purple-200 rounded-lg 
-                   focus:ring-2 focus:ring-purple-500 focus:border-transparent
-                   resize-none"
-          placeholder="Paste your text here (up to 3000 words)..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-		  </div>
-        />
+    <div className="bg-white rounded-lg shadow-lg p-6">
+      <textarea
+        className="w-full h-64 p-4 border-2 border-purple-200 rounded-lg 
+                 focus:ring-2 focus:ring-purple-500 focus:border-transparent
+                 resize-none"
+        placeholder="Paste your text here (up to 3000 words)..."
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
 
       <div className="flex justify-between items-center mt-4">
         <button
