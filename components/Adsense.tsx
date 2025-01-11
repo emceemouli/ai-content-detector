@@ -18,10 +18,11 @@ export const InArticleAd: React.FC = () => {
       script.async = true;
       script.onload = () => {
         setAdsbygoogle(window.adsbygoogle || []);
-        // If you need to push something immediately after the script loads, you can do it here:
+
         if (window.adsbygoogle) {
           try {
-            window.adsbygoogle.push({}); 
+            // Use a type assertion to tell TypeScript to treat {} as the correct type
+            window.adsbygoogle.push({} as unknown); 
           } catch (err) {
             console.error('AdSense error:', err);
           }
@@ -30,17 +31,6 @@ export const InArticleAd: React.FC = () => {
       document.head.appendChild(script);
     }
   }, []);
-
-  // This useEffect might not be necessary if you push in the onload callback
-  useEffect(() => { 
-    if (adsbygoogle) {
-      try {
-        adsbygoogle.push({});
-      } catch (err) {
-        console.error('AdSense error:', err);
-      }
-    }
-  }, [adsbygoogle]);
 
   return (
     <div className="my-8">
