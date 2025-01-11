@@ -8,14 +8,14 @@ class MyDocument extends Document {
           {/* Google AdSense Auto Ads */}
           <script 
             async 
-            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_PUBLISHER_ID"
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=pub-7638771792216412"
             crossOrigin="anonymous"
           />
           <script
             dangerouslySetInnerHTML={{
               __html: `
                 (adsbygoogle = window.adsbygoogle || []).push({
-                  google_ad_client: "ca-pub-YOUR_PUBLISHER_ID",
+                  google_ad_client: "pub-7638771792216412",
                   enable_page_level_ads: true
                 });
               `
