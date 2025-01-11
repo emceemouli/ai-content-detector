@@ -35,6 +35,10 @@ export default function TextAnalyzer() {
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
+	      <Head> 
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7638771792216412"
+          crossorigin="anonymous"></script>
+      </Head>
       <textarea
         className="w-full h-64 p-4 border-2 border-purple-200 rounded-lg 
                  focus:ring-2 focus:ring-purple-500 focus:border-transparent
