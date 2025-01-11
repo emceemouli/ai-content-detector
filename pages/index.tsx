@@ -1,13 +1,15 @@
 import Head from 'next/head';
 import TextAnalyzer from '../components/TextAnalyzer';
-import { AlertCircle, CheckCircle2, Share2 } from 'lucide-react';
 
 export default function Home() {
   return (
     <>
       <Head>
         <title>AI Content Detector - Free AI Text Analysis Tool</title>
-        <meta name="description" content="Free online tool to detect AI-generated content. No registration required." />
+        <meta 
+          name="description" 
+          content="Free online tool to detect AI-generated content. No registration required." 
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
