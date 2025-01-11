@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 declare global {
   interface Window {
     adsbygoogle: {
-      push: (config?: unknown) => void; // Allow optional config
+      push: (config?: unknown) => void;
     }[];
   }
 }
@@ -12,12 +12,17 @@ export const InArticleAd = () => {
   const [adsbygoogle, setAdsbygoogle] = useState<Window['adsbygoogle'] | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') { // Check if window exists
+    if (typeof window !== 'undefined') {
       const script = document.createElement('script');
       script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7638771792216412';
       script.async = true;
       script.onload = () => {
-        setAdsbygoogle(window.adsbygoogle || []);
+        // Ensure window.adsbygoogle is an array with a push method
+        if (Array.isArray(window.adsbygoogle) && typeof window.adsbygoogle.push === 'function') { 
+          setAdsbygoogle(window.adsbygoogle);
+        } else {
+          console.error('AdSense: window.adsbygoogle is not correctly initialized.');
+        }
       };
       document.head.appendChild(script);
     }
@@ -26,9 +31,9 @@ export const InArticleAd = () => {
   useEffect(() => {
     if (adsbygoogle) {
       try {
-        adsbygoogle.push({}); 
+        adsbygoogle.push({});
       } catch (err) {
-        console.error('AdSense error:', err); 
+        console.error('AdSense error:', err);
       }
     }
   }, [adsbygoogle]);
@@ -38,9 +43,9 @@ export const InArticleAd = () => {
       {adsbygoogle && (
         <ins className="adsbygoogle"
           style={{ display: 'block', textAlign: 'center' }}
-          data-ad-layout="in-article" 
+          data-ad-layout="in-article"
           data-ad-format="fluid"
-          data-ad-client="pub-7638771792216412"> 
+          data-ad-client="pub-7638771792216412">
         </ins>
       )}
     </div>
