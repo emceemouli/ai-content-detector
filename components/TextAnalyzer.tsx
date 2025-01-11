@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import Head from 'next/head'; 
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { analyzeText } from '../utils/textAnalysis';
+import { InArticleAd } from './Adsense'; 
+
 
 interface AnalysisResult {
   score: number;
@@ -34,6 +37,11 @@ export default function TextAnalyzer() {
   };
 
   return (
+      <> {/* Wrap the content in a fragment */}
+      <Head> 
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7638771792216412"
+          crossorigin="anonymous"></script>
+      </Head>
     <div className="bg-white rounded-lg shadow-lg p-6">
       <textarea
         className="w-full h-64 p-4 border-2 border-purple-200 rounded-lg 
