@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-// Declare adsbygoogle with a more specific type, but allow any config for push
 declare global {
   interface Window {
     adsbygoogle: {
@@ -9,7 +8,7 @@ declare global {
   }
 }
 
-export const InArticleAd = () => {
+export const InArticleAd: React.FC = () => {
   const [adsbygoogle, setAdsbygoogle] = useState<Window['adsbygoogle'] | null>(null);
 
   useEffect(() => {
@@ -18,14 +17,22 @@ export const InArticleAd = () => {
       script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7638771792216412';
       script.async = true;
       script.onload = () => {
-        // Type assertion to tell TypeScript that window.adsbygoogle matches the expected type
-        setAdsbygoogle(window.adsbygoogle as Window['adsbygoogle'] || []); 
+        setAdsbygoogle(window.adsbygoogle || []);
+        // If you need to push something immediately after the script loads, you can do it here:
+        if (window.adsbygoogle) {
+          try {
+            window.adsbygoogle.push({}); 
+          } catch (err) {
+            console.error('AdSense error:', err);
+          }
+        }
       };
       document.head.appendChild(script);
     }
   }, []);
 
-  useEffect(() => {
+  // This useEffect might not be necessary if you push in the onload callback
+  useEffect(() => { 
     if (adsbygoogle) {
       try {
         adsbygoogle.push({});
