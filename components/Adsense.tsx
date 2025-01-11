@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 
+// Declare adsbygoogle with a more specific type, but allow any config for push
 declare global {
   interface Window {
-    adsbygoogle: any[]; // Use any[] to bypass the type check
+    adsbygoogle: {
+      push: (config?: unknown) => void;
+    }[];
   }
 }
 
@@ -15,7 +18,8 @@ export const InArticleAd = () => {
       script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7638771792216412';
       script.async = true;
       script.onload = () => {
-        setAdsbygoogle(window.adsbygoogle || []);
+        // Type assertion to tell TypeScript that window.adsbygoogle matches the expected type
+        setAdsbygoogle(window.adsbygoogle as Window['adsbygoogle'] || []); 
       };
       document.head.appendChild(script);
     }
