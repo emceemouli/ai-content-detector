@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 declare global {
   interface Window {
     adsbygoogle: {
-      push: (config: unknown) => void; 
+      push: (config?: unknown) => void; // Allow optional config
     }[];
   }
 }
@@ -12,13 +12,15 @@ export const InArticleAd = () => {
   const [adsbygoogle, setAdsbygoogle] = useState<Window['adsbygoogle'] | null>(null);
 
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7638771792216412';
-    script.async = true;
-    script.onload = () => {
-      setAdsbygoogle(window.adsbygoogle || []);
-    };
-    document.head.appendChild(script);
+    if (typeof window !== 'undefined') { // Check if window exists
+      const script = document.createElement('script');
+      script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7638771792216412';
+      script.async = true;
+      script.onload = () => {
+        setAdsbygoogle(window.adsbygoogle || []);
+      };
+      document.head.appendChild(script);
+    }
   }, []);
 
   useEffect(() => {
