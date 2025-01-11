@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 
 declare global {
   interface Window {
-    adsbygoogle: any[];
+    adsbygoogle: {
+      push: (config: unknown) => void; 
+    }[];
   }
 }
 
 export const InArticleAd = () => {
-  const [adsbygoogle, setAdsbygoogle] = useState<any[] | null>(null);
+  const [adsbygoogle, setAdsbygoogle] = useState<Window['adsbygoogle'] | null>(null);
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -24,7 +26,7 @@ export const InArticleAd = () => {
       try {
         adsbygoogle.push({}); 
       } catch (err) {
-        console.error('AdSense error:', err);
+        console.error('AdSense error:', err); 
       }
     }
   }, [adsbygoogle]);
