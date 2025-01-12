@@ -1,0 +1,33 @@
+{
+  "transitions": {
+    "patterns": [
+      "furthermore", "moreover", "additionally", "consequently",
+      "thus", "hence", "therefore", "in addition", "as a result",
+      "subsequently", "accordingly", "similarly", "in contrast",
+      "on the other hand", "specifically", "notably", "indeed"
+    ],
+    "weight": 0.25,
+    "threshold": 0.1,
+    "finding": "High frequency of transitional phrases typical of AI writing"
+  },
+  "formalLanguage": {
+    "patterns": [
+      "utilize", "implementation", "facilitate", "regarding",
+      "numerous", "optimal", "demonstrate", "indicate", "significant",
+      "fundamental", "methodology", "paradigm", "conceptualize"
+    ],
+    "weight": 0.2,
+    "threshold": 0.15,
+    "finding": "Significant use of formal/academic language"
+  },
+  "aiPhrases": {
+    "patterns": [
+      "it must be noted that", "it should be noted that",
+      "it is worth noting that", "studies indicate that",
+      "research suggests that", "evidence demonstrates that"
+    ],
+    "weight": 0.3,
+    "threshold": 0.05,
+    "finding": "Common AI-generated phrases detected"
+  }
+}

@@ -1,27 +1,49 @@
-import { useState } from 'react';
-import Head from 'next/head';
-import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { CheckCircle2, AlertCircle, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { analyzeText } from '../utils/textAnalysis';
+import {
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  Radar,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Legend
+} from 'recharts';
 
 interface AnalysisResult {
   score: number;
-  findings: string[];
   patterns: {
     repetitive: boolean;
     formal: boolean;
     structured: boolean;
     statistical: boolean;
+    aiPhrases: boolean;
+  };
+  confidence: number;
+  metrics: {
+    wordVariety: number;
+    avgSentenceLength: number;
+    patternDensity: number;
+    complexityScore: number;
+    repetitivePatterns: number;
   };
 }
 
-export default function TextAnalyzer() {
+export const TextAnalyzer: React.FC = () => {
   const [text, setText] = useState('');
-  const [result, setResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [showMetrics, setShowMetrics] = useState(true);
 
   const handleAnalysis = async () => {
     if (!text.trim()) return;
-
+    
     setIsAnalyzing(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -34,12 +56,93 @@ export default function TextAnalyzer() {
     }
   };
 
+  const renderRadarChart = (metrics: AnalysisResult['metrics']) => {
+    const data = [
+      {
+        subject: 'Word Variety',
+        value: metrics.wordVariety * 100,
+        fullMark: 100,
+      },
+      {
+        subject: 'Complexity',
+        value: metrics.complexityScore * 100,
+        fullMark: 100,
+      },
+      {
+        subject: 'Pattern Usage',
+        value: metrics.patternDensity * 100,
+        fullMark: 100,
+      },
+      {
+        subject: 'Sentence Length',
+        value: Math.min(metrics.avgSentenceLength * 5, 100),
+        fullMark: 100,
+      },
+      {
+        subject: 'Repetition',
+        value: metrics.repetitivePatterns * 100,
+        fullMark: 100,
+      },
+    ];
+
+    return (
+      <div className="h-72 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
+            <PolarGrid />
+            <PolarAngleAxis dataKey="subject" />
+            <Radar
+              name="Metrics"
+              dataKey="value"
+              stroke="#9333EA"
+              fill="#9333EA"
+              fillOpacity={0.5}
+            />
+            <Legend />
+          </RadarChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  };
+
+  const renderDistributionChart = (result: AnalysisResult) => {
+    const data = [
+      {
+        name: 'AI Patterns',
+        value: result.score * 100,
+      },
+      {
+        name: 'Formality',
+        value: result.metrics.patternDensity * 100,
+      },
+      {
+        name: 'Complexity',
+        value: result.metrics.complexityScore * 100,
+      },
+      {
+        name: 'Word Variety',
+        value: result.metrics.wordVariety * 100,
+      },
+    ];
+
+    return (
+      <div className="h-64 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="value" fill="#9333EA" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  };
+
   return (
-    <>
-      <Head>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7638771792216412" crossOrigin="anonymous"></script>
-      </Head>
-      <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="mb-6">
         <textarea
           className="w-full h-64 p-4 border-2 border-purple-200 rounded-lg 
                    focus:ring-2 focus:ring-purple-500 focus:border-transparent
@@ -74,62 +177,116 @@ export default function TextAnalyzer() {
             {text.trim().split(/\s+/).length}/3000 words
           </span>
         </div>
+      </div>
 
-        {/* Results Display */}
-        {result && (
-          <div className="mt-8 space-y-6">
-            {/* AI Score Section */}
-            <div className="p-6 bg-gray-50 rounded-lg">
-              <h3 className="text-xl font-semibold mb-4">Analysis Results</h3>
-              
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-700">AI Probability</span>
-                  <span className="font-semibold text-purple-600">
-                    {Math.round(result.score * 100)}%
-                  </span>
-                </div>
-                <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-purple-600 to-pink-600 transition-all duration-500"
-                    style={{ width: `${result.score * 100}%` }}
-                  />
-                </div>
+      {result !== null && (
+        <div className="mt-8 space-y-8">
+          <div className="p-6 bg-gray-50 rounded-lg">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h3 className="text-2xl font-bold text-purple-600">
+                  {Math.round(result.score * 100)}% AI Probability
+                </h3>
+                <p className="text-gray-600 mt-1">
+                  Confidence: {Math.round(result.confidence * 100)}%
+                </p>
               </div>
-
-              {/* Findings Section */}
-              {result.findings.length > 0 && (
-                <div>
-                  <h4 className="font-semibold text-lg mb-3">Key Findings:</h4>
-                  <ul className="space-y-2">
-                    {result.findings.map((finding, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <AlertCircle className="h-5 w-5 text-purple-500 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{finding}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Pattern Detection */}
-              <div className="mt-6">
-                <h4 className="font-semibold text-lg mb-3">Pattern Analysis:</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  {Object.entries(result.patterns).map(([pattern, detected]) => (
-                    <div key={pattern} className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${detected ? 'bg-purple-500' : 'bg-gray-300'}`} />
-                      <span className="text-gray-700 capitalize">
-                        {pattern.replace(/([A-Z])/g, ' $1').trim()}
-                      </span>
-                    </div>
+              <div className="text-right">
+                <div className="text-sm text-gray-500">Analysis Strength</div>
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-2 h-8 rounded-full ${
+                        i < Math.ceil(result.confidence * 5)
+                          ? 'bg-purple-600'
+                          : 'bg-gray-200'
+                      }`}
+                    />
                   ))}
                 </div>
               </div>
             </div>
+
+            <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-purple-600 to-pink-600 transition-all duration-500"
+                style={{ width: `${result.score * 100}%` }}
+              />
+            </div>
           </div>
-        )}
-      </div>
-    </>
+
+          <div className="bg-white rounded-lg border">
+            <button
+              onClick={() => setShowMetrics(!showMetrics)}
+              className="w-full p-4 flex justify-between items-center text-lg font-semibold"
+            >
+              Analysis Details
+              {showMetrics ? <ChevronUp /> : <ChevronDown />}
+            </button>
+
+            {showMetrics && (
+              <div className="p-6 border-t">
+                <div className="space-y-8">
+                  {renderRadarChart(result.metrics)}
+                  {renderDistributionChart(result)}
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <MetricCard
+                      title="Word Variety"
+                      value={`${(result.metrics.wordVariety * 100).toFixed(1)}%`}
+                      info="Higher variety suggests more natural writing"
+                    />
+                    <MetricCard
+                      title="Pattern Density"
+                      value={`${(result.metrics.patternDensity * 100).toFixed(1)}%`}
+                      info="Density of AI-typical patterns"
+                    />
+                    <MetricCard
+                      title="Complexity"
+                      value={`${(result.metrics.complexityScore * 100).toFixed(1)}%`}
+                      info="Overall text complexity score"
+                    />
+                    <MetricCard
+                      title="Avg Sentence Length"
+                      value={`${result.metrics.avgSentenceLength.toFixed(1)}`}
+                      info="Average words per sentence"
+                    />
+                    <MetricCard
+                      title="Repetitive Patterns"
+                      value={`${(result.metrics.repetitivePatterns * 100).toFixed(1)}%`}
+                      info="Percentage of repeated patterns"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
-}
+};
+
+const MetricCard: React.FC<{
+  title: string;
+  value: string;
+  info: string;
+}> = ({ title, value, info }) => (
+  <div className="bg-gray-50 p-4 rounded-lg">
+    <div className="flex justify-between items-start">
+      <div>
+        <div className="text-sm text-gray-500">{title}</div>
+        <div className="text-xl font-semibold text-gray-900 mt-1">{value}</div>
+      </div>
+      <div className="group relative" title={info}>
+        <Info className="h-4 w-4 text-gray-400" />
+        <div className="invisible group-hover:visible absolute right-0 top-6 w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-10">
+          {info}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+export default TextAnalyzer;

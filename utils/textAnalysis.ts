@@ -1,7 +1,6 @@
 // utils/textAnalysis.ts
 
-// Define the interface first
-export interface AnalysisResult {
+interface AnalysisResult {
   score: number;
   findings: string[];
   patterns: {
@@ -9,77 +8,190 @@ export interface AnalysisResult {
     formal: boolean;
     structured: boolean;
     statistical: boolean;
-    aiPhrases?: boolean;
+    aiPhrases: boolean;
+  };
+  confidence: number;
+  metrics: {
+    wordVariety: number;
+    avgSentenceLength: number;
+    patternDensity: number;
+    complexityScore: number;
+    repetitivePatterns: number;
+    uniqueWordRatio: number;
+    longSentenceRatio: number;
+    formalityScore: number;
+    transitionDensity: number;
+    academicPhraseCount: number;
   };
 }
 
-// Then export the function
 export const analyzeText = (text: string): AnalysisResult => {
-  // Initialize variables
+  // Normalize text
+  const normalizedText = text.toLowerCase();
+  const words = normalizedText.split(/\s+/).filter(Boolean);
+  const sentences = text.split(/[.!?]+/).filter(Boolean);
+  const uniqueWords = new Set(words);
+
   let score = 0;
   let findings: string[] = [];
+  let confidence = 0;
 
-  // Define patterns
+  // Pattern detection with enhanced patterns
   const patterns = {
-    transitionPhrases: /\b(furthermore|moreover|additionally|consequently|thus|hence|therefore|in addition|as a result|subsequently)\b/gi,
-    formalLanguage: /\b(utilize|implementation|facilitate|regarding|numerous|optimal|demonstrate|indicate|significant|fundamental)\b/gi,
-    statisticalClaims: /\b(\d{1,3}(?:\.\d{1,2})?%|percent|proportion|majority|minority)\b/gi,
-    repetitiveStructures: /(it is|there is|this is|these are) (important|crucial|essential|significant|necessary)/gi,
-  };
-
-  // Calculate matches
-  const matches = {
-    transitions: (text.match(patterns.transitionPhrases) || []).length,
-    formal: (text.match(patterns.formalLanguage) || []).length,
-    statistical: (text.match(patterns.statisticalClaims) || []).length,
-    repetitive: (text.match(patterns.repetitiveStructures) || []).length
-  };
-
-  // Score transitions
-  if (matches.transitions >= 2) {
-    score += 0.25;
-    findings.push('High frequency of transitional phrases typical of AI writing');
-  }
-
-  // Score formal language
-  if (matches.formal >= 2) {
-    score += 0.2;
-    findings.push('Significant use of formal/academic language');
-  }
-
-  // Score statistical claims
-  if (matches.statistical > 0) {
-    score += 0.2;
-    findings.push('Contains statistical claims or measurements');
-  }
-
-  // Score repetitive structures
-  if (matches.repetitive >= 2) {
-    score += 0.2;
-    findings.push('Repetitive sentence structures detected');
-  }
-
-  // Analyze sentence structure
-  const sentences = text.split(/[.!?]+/).filter(Boolean);
-  const avgLength = sentences.length > 0
-    ? sentences.reduce((acc, sent) => acc + sent.trim().split(/\s+/).length, 0) / sentences.length
-    : 0;
-
-  if (avgLength > 20) {
-    score += 0.15;
-    findings.push('Consistently long, complex sentences');
-  }
-
-  // Return the analysis result
-  return {
-    score: Math.min(score, 1), // Ensure score doesn't exceed 1
-    findings,
-    patterns: {
-      repetitive: matches.repetitive >= 2,
-      formal: matches.formal >= 2,
-      structured: avgLength > 20,
-      statistical: matches.statistical > 0,
-      aiPhrases: (matches.transitions + matches.formal) > 3
+    transitions: {
+      patterns: [
+        'furthermore', 'moreover', 'additionally', 'consequently', 'thus',
+        'hence', 'therefore', 'in addition', 'as a result', 'subsequently',
+        'accordingly', 'similarly', 'in contrast', 'however', 'nevertheless'
+      ],
+      weight: 0.25
+    },
+    formalLanguage: {
+      patterns: [
+        'utilize', 'implementation', 'facilitate', 'regarding', 'numerous',
+        'optimal', 'demonstrate', 'indicate', 'significant', 'fundamental',
+        'methodology', 'paradigm', 'conceptualize', 'emphasize'
+      ],
+      weight: 0.2
+    },
+    academicPhrases: {
+      patterns: [
+        'it must be noted that', 'it should be noted that', 'it is worth noting that',
+        'studies indicate that', 'research suggests that', 'evidence demonstrates that',
+        'analysis reveals that', 'data indicates that', 'findings suggest that'
+      ],
+      weight: 0.3
     }
   };
+
+  // Calculate pattern matches
+  const patternMatches = {
+    transitions: 0,
+    formal: 0,
+    academic: 0
+  };
+
+  // Count pattern occurrences
+  Object.entries(patterns).forEach(([type, { patterns: patternList, weight }]) => {
+    patternList.forEach(pattern => {
+      const regex = new RegExp(`\\b${pattern}\\b`, 'gi');
+      const matches = (text.match(regex) || []).length;
+      if (matches > 0) {
+        score += matches * weight;
+        patternMatches[type] += matches;
+      }
+    });
+  });
+
+  // Calculate metrics
+  const metrics = {
+    wordVariety: uniqueWords.size / words.length,
+    avgSentenceLength: words.length / sentences.length,
+    patternDensity: (patternMatches.transitions + patternMatches.formal + patternMatches.academic) / words.length,
+    complexityScore: calculateComplexity(text, sentences),
+    repetitivePatterns: calculateRepetitivePatterns(sentences),
+    uniqueWordRatio: uniqueWords.size / words.length,
+    longSentenceRatio: sentences.filter(s => s.split(/\s+/).length > 20).length / sentences.length,
+    formalityScore: calculateFormality(text),
+    transitionDensity: patternMatches.transitions / sentences.length,
+    academicPhraseCount: patternMatches.academic
+  };
+
+  // Generate findings
+  if (metrics.wordVariety < 0.4) {
+    findings.push('Limited vocabulary variety detected');
+    score += 0.15;
+  }
+
+  if (metrics.avgSentenceLength > 20) {
+    findings.push('Consistently complex sentence structures');
+    score += 0.15;
+  }
+
+  if (metrics.patternDensity > 0.1) {
+    findings.push('High density of AI-typical patterns detected');
+    score += 0.2;
+  }
+
+  if (metrics.formalityScore > 0.6) {
+    findings.push('Highly formal language patterns identified');
+    score += 0.15;
+  }
+
+  // Calculate confidence based on multiple factors
+  confidence = calculateConfidence(metrics, findings.length);
+
+  return {
+    score: Math.min(score, 1),
+    findings,
+    patterns: {
+      repetitive: metrics.repetitivePatterns > 0.3,
+      formal: metrics.formalityScore > 0.5,
+      structured: metrics.longSentenceRatio > 0.4,
+      statistical: hasStatisticalPatterns(text),
+      aiPhrases: patternMatches.academic > 2
+    },
+    confidence,
+    metrics
+  };
+};
+
+const calculateComplexity = (text: string, sentences: string[]): number => {
+  const complexWords = text.split(/\s+/).filter(word => 
+    word.length > 6 || /(?:[^laeiouy]es|ed|[^laeiouy]e)$/.test(word)
+  ).length;
+
+  const complexSentences = sentences.filter(sent => 
+    sent.split(/\s+/).length > 20 || 
+    /\b(although|however|nevertheless|furthermore|additionally)\b/i.test(sent)
+  ).length;
+
+  return (complexWords / text.split(/\s+/).length + complexSentences / sentences.length) / 2;
+};
+
+const calculateFormality = (text: string): number => {
+  const formalIndicators = [
+    /\b(therefore|thus|hence|consequently)\b/gi,
+    /\b(demonstrate|indicate|suggest|reveal|conclude)\b/gi,
+    /\b(analysis|research|study|investigation)\b/gi,
+    /\b(significant|substantial|considerable)\b/gi
+  ];
+
+  let formalityScore = 0;
+  formalIndicators.forEach(indicator => {
+    const matches = (text.match(indicator) || []).length;
+    if (matches > 0) formalityScore += 0.25;
+  });
+
+  return Math.min(formalityScore, 1);
+};
+
+const calculateRepetitivePatterns = (sentences: string[]): number => {
+  const patterns = sentences.map(s => s.split(' ')[0].toLowerCase());
+  const repetitions = patterns.filter((p, i) => patterns.indexOf(p) !== i).length;
+  return repetitions / sentences.length;
+};
+
+const hasStatisticalPatterns = (text: string): boolean => {
+  const patterns = [
+    /\d{1,3}(?:\.\d{1,2})?%/,
+    /\d+\s*percent/,
+    /majority|minority|significant portion|substantial number/,
+    /\d+\s*times/,
+    /increased by|\d+\s*fold/
+  ];
+
+  return patterns.some(pattern => pattern.test(text));
+};
+
+const calculateConfidence = (metrics: any, findingsCount: number): number => {
+  let confidence = 0;
+  
+  // Weight different factors
+  confidence += metrics.wordVariety < 0.4 ? 0.2 : 0;
+  confidence += metrics.patternDensity > 0.1 ? 0.3 : 0;
+  confidence += metrics.formalityScore > 0.6 ? 0.2 : 0;
+  confidence += findingsCount / 10; // More findings increase confidence
+
+  return Math.min(confidence + 0.3, 1); // Base confidence of 0.3
 };
