@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, AlertCircle, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle2, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { analyzeText } from '../utils/textAnalysis';
 import {
   RadarChart,
