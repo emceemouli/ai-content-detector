@@ -163,5 +163,5 @@ const calculateConfidence = (metrics: AnalysisResult['metrics'], findingsCount: 
   confidence += metrics.patternDensity > 0.1 ? 0.3 : 0;
   confidence += findingsCount / 10;
 
-  return Math.min(confidence + 0.3, 1); // Base confidence of 0.3
+  return Math.min(confidence + 0.3, 1);
 };
