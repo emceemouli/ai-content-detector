@@ -17,13 +17,11 @@ interface AnalysisResult {
     patternDensity: number;
     complexityScore: number;
     repetitivePatterns: number;
-    uniqueWordRatio: number;
-    longSentenceRatio: number;
-    formalityScore: number;
-    transitionDensity: number;
-    academicPhraseCount: number;
   };
 }
+
+type PatternMatchType = 'transitions' | 'formal' | 'academic';
+type PatternMatches = Record<PatternMatchType, number>;
 
 export const analyzeText = (text: string): AnalysisResult => {
   // Normalize text
@@ -46,7 +44,7 @@ export const analyzeText = (text: string): AnalysisResult => {
       ],
       weight: 0.25
     },
-    formalLanguage: {
+    formal: {
       patterns: [
         'utilize', 'implementation', 'facilitate', 'regarding', 'numerous',
         'optimal', 'demonstrate', 'indicate', 'significant', 'fundamental',
@@ -54,7 +52,7 @@ export const analyzeText = (text: string): AnalysisResult => {
       ],
       weight: 0.2
     },
-    academicPhrases: {
+    academic: {
       patterns: [
         'it must be noted that', 'it should be noted that', 'it is worth noting that',
         'studies indicate that', 'research suggests that', 'evidence demonstrates that',
@@ -64,21 +62,21 @@ export const analyzeText = (text: string): AnalysisResult => {
     }
   };
 
-  // Calculate pattern matches
-  const patternMatches = {
+  // Initialize pattern matches with typed structure
+  const patternMatches: PatternMatches = {
     transitions: 0,
     formal: 0,
     academic: 0
   };
 
-  // Count pattern occurrences
+  // Count pattern occurrences with type safety
   Object.entries(patterns).forEach(([type, { patterns: patternList, weight }]) => {
     patternList.forEach(pattern => {
       const regex = new RegExp(`\\b${pattern}\\b`, 'gi');
       const matches = (text.match(regex) || []).length;
       if (matches > 0) {
         score += matches * weight;
-        patternMatches[type] += matches;
+        patternMatches[type as PatternMatchType] += matches;
       }
     });
   });
@@ -89,15 +87,10 @@ export const analyzeText = (text: string): AnalysisResult => {
     avgSentenceLength: words.length / sentences.length,
     patternDensity: (patternMatches.transitions + patternMatches.formal + patternMatches.academic) / words.length,
     complexityScore: calculateComplexity(text, sentences),
-    repetitivePatterns: calculateRepetitivePatterns(sentences),
-    uniqueWordRatio: uniqueWords.size / words.length,
-    longSentenceRatio: sentences.filter(s => s.split(/\s+/).length > 20).length / sentences.length,
-    formalityScore: calculateFormality(text),
-    transitionDensity: patternMatches.transitions / sentences.length,
-    academicPhraseCount: patternMatches.academic
+    repetitivePatterns: calculateRepetitivePatterns(sentences)
   };
 
-  // Generate findings
+  // Generate findings based on metrics
   if (metrics.wordVariety < 0.4) {
     findings.push('Limited vocabulary variety detected');
     score += 0.15;
@@ -113,11 +106,6 @@ export const analyzeText = (text: string): AnalysisResult => {
     score += 0.2;
   }
 
-  if (metrics.formalityScore > 0.6) {
-    findings.push('Highly formal language patterns identified');
-    score += 0.15;
-  }
-
   // Calculate confidence based on multiple factors
   confidence = calculateConfidence(metrics, findings.length);
 
@@ -126,8 +114,8 @@ export const analyzeText = (text: string): AnalysisResult => {
     findings,
     patterns: {
       repetitive: metrics.repetitivePatterns > 0.3,
-      formal: metrics.formalityScore > 0.5,
-      structured: metrics.longSentenceRatio > 0.4,
+      formal: patternMatches.formal > 2,
+      structured: metrics.avgSentenceLength > 20,
       statistical: hasStatisticalPatterns(text),
       aiPhrases: patternMatches.academic > 2
     },
@@ -147,23 +135,6 @@ const calculateComplexity = (text: string, sentences: string[]): number => {
   ).length;
 
   return (complexWords / text.split(/\s+/).length + complexSentences / sentences.length) / 2;
-};
-
-const calculateFormality = (text: string): number => {
-  const formalIndicators = [
-    /\b(therefore|thus|hence|consequently)\b/gi,
-    /\b(demonstrate|indicate|suggest|reveal|conclude)\b/gi,
-    /\b(analysis|research|study|investigation)\b/gi,
-    /\b(significant|substantial|considerable)\b/gi
-  ];
-
-  let formalityScore = 0;
-  formalIndicators.forEach(indicator => {
-    const matches = (text.match(indicator) || []).length;
-    if (matches > 0) formalityScore += 0.25;
-  });
-
-  return Math.min(formalityScore, 1);
 };
 
 const calculateRepetitivePatterns = (sentences: string[]): number => {
@@ -190,8 +161,7 @@ const calculateConfidence = (metrics: any, findingsCount: number): number => {
   // Weight different factors
   confidence += metrics.wordVariety < 0.4 ? 0.2 : 0;
   confidence += metrics.patternDensity > 0.1 ? 0.3 : 0;
-  confidence += metrics.formalityScore > 0.6 ? 0.2 : 0;
-  confidence += findingsCount / 10; // More findings increase confidence
+  confidence += findingsCount / 10;
 
   return Math.min(confidence + 0.3, 1); // Base confidence of 0.3
 };

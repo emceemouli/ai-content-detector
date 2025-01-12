@@ -1,3 +1,4 @@
+// components/TextAnalyzer.tsx
 import React, { useState } from 'react';
 import { CheckCircle2, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { analyzeText } from '../utils/textAnalysis';
@@ -18,6 +19,7 @@ import {
 
 interface AnalysisResult {
   score: number;
+  findings: string[];
   patterns: {
     repetitive: boolean;
     formal: boolean;
@@ -179,6 +181,7 @@ export const TextAnalyzer: React.FC = () => {
         </div>
       </div>
 
+      {/* Results Section */}
       {result !== null && (
         <div className="mt-8 space-y-8">
           <div className="p-6 bg-gray-50 rounded-lg">
