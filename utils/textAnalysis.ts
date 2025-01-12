@@ -1,29 +1,31 @@
 // utils/textAnalysis.ts
+import { AnalysisResult, PatternMatchType, PatternMatches } from '@/types/analysisTypes';
 
-interface AnalysisResult {
-  score: number;
-  findings: string[];
+const getEmptyResult = (): AnalysisResult => ({
+  score: 0,
+  findings: [],
   patterns: {
-    repetitive: boolean;
-    formal: boolean;
-    structured: boolean;
-    statistical: boolean;
-    aiPhrases: boolean;
-  };
-  confidence: number;
+    repetitive: false,
+    formal: false,
+    structured: false,
+    statistical: false,
+    aiPhrases: false
+  },
+  confidence: 0,
   metrics: {
-    wordVariety: number;
-    avgSentenceLength: number;
-    patternDensity: number;
-    complexityScore: number;
-    repetitivePatterns: number;
-  };
-}
-
-type PatternMatchType = 'transitions' | 'formal' | 'academic';
-type PatternMatches = Record<PatternMatchType, number>;
+    wordVariety: 0,
+    avgSentenceLength: 0,
+    patternDensity: 0,
+    complexityScore: 0,
+    repetitivePatterns: 0
+  }
+});
 
 export const analyzeText = (text: string): AnalysisResult => {
+  if (!text.trim()) {
+    return getEmptyResult();
+  }
+
   // Normalize text
   const normalizedText = text.toLowerCase();
   const words = normalizedText.split(/\s+/).filter(Boolean);
@@ -62,14 +64,14 @@ export const analyzeText = (text: string): AnalysisResult => {
     }
   };
 
-  // Initialize pattern matches with typed structure
+  // Initialize pattern matches
   const patternMatches: PatternMatches = {
     transitions: 0,
     formal: 0,
     academic: 0
   };
 
-  // Count pattern occurrences with type safety
+  // Count pattern occurrences
   Object.entries(patterns).forEach(([type, { patterns: patternList, weight }]) => {
     patternList.forEach(pattern => {
       const regex = new RegExp(`\\b${pattern}\\b`, 'gi');
@@ -90,7 +92,7 @@ export const analyzeText = (text: string): AnalysisResult => {
     repetitivePatterns: calculateRepetitivePatterns(sentences)
   };
 
-  // Generate findings based on metrics
+  // Generate findings
   if (metrics.wordVariety < 0.4) {
     findings.push('Limited vocabulary variety detected');
     score += 0.15;
@@ -106,7 +108,6 @@ export const analyzeText = (text: string): AnalysisResult => {
     score += 0.2;
   }
 
-  // Calculate confidence based on multiple factors
   confidence = calculateConfidence(metrics, findings.length);
 
   return {
@@ -155,10 +156,9 @@ const hasStatisticalPatterns = (text: string): boolean => {
   return patterns.some(pattern => pattern.test(text));
 };
 
-const calculateConfidence = (metrics: any, findingsCount: number): number => {
+const calculateConfidence = (metrics: AnalysisResult['metrics'], findingsCount: number): number => {
   let confidence = 0;
   
-  // Weight different factors
   confidence += metrics.wordVariety < 0.4 ? 0.2 : 0;
   confidence += metrics.patternDensity > 0.1 ? 0.3 : 0;
   confidence += findingsCount / 10;
