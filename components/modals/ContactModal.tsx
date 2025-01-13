@@ -15,7 +15,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) => {
           <Mail className="h-6 w-6 text-purple-600 mt-1" />
           <div>
             <h3 className="font-semibold mb-1">Email Support</h3>
-            <p className="text-gray-600">support@aidetector.com</p>
+            <p className="text-gray-600">calgaryacademicexcellence@gmail.com</p>
             <p className="text-sm text-gray-500">We typically respond within 24 hours</p>
           </div>
         </div>
