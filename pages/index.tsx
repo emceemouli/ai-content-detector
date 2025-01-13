@@ -1,6 +1,5 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-// Changed from import { TextAnalyzer } from '../components/TextAnalyzer';
 import TextAnalyzer from '@/components/TextAnalyzer';
 import Footer from '@/components/layout/Footer';
 
@@ -13,6 +12,22 @@ const Home: NextPage = () => {
           name="description" 
           content="Advanced AI detection with dynamic pattern recognition and linguistic analysis" 
         />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="keywords" content="AI detection, content analysis, text analysis, AI content detector" />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://ai-content-detector-mu.vercel.app" />
+        <meta property="og:title" content="AI Content Detector" />
+        <meta property="og:description" content="Advanced AI detection with dynamic pattern recognition" />
+        
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://ai-content-detector-mu.vercel.app" />
+        <meta property="twitter:title" content="AI Content Detector" />
+        <meta property="twitter:description" content="Advanced AI detection with dynamic pattern recognition" />
+        
+        <link rel="canonical" href="https://ai-content-detector-mu.vercel.app" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
