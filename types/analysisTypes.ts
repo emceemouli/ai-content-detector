@@ -19,25 +19,3 @@ export interface AnalysisResult {
     repetitivePatterns: number;
   };
 }
-
-export interface PatternScore {
-  score: number;
-  findings: string[];
-  hasAIPhrases: boolean;
-  hasRepetitivePatterns: boolean;
-}
-
-export interface StructuralAnalysis {
-  score: number;
-  findings: string[];
-  isStructured: boolean;
-}
-
-export interface LanguageAnalysis {
-  score: number;
-  findings: string[];
-  isFormal: boolean;
-}
-
-export type PatternMatchType = 'transitions' | 'formal' | 'academic';
-export type PatternMatches = Record<PatternMatchType, number>;

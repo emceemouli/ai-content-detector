@@ -1,10 +1,21 @@
 import type { NextPage } from 'next';
-import { TextAnalyzer } from '../components/TextAnalyzer';
-import Footer from '../components/layout/Footer';
+import Head from 'next/head';
+// Changed from import { TextAnalyzer } from '../components/TextAnalyzer';
+import TextAnalyzer from '@/components/TextAnalyzer';
+import Footer from '@/components/layout/Footer';
 
 const Home: NextPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
+      <Head>
+        <title>AI Content Detector</title>
+        <meta 
+          name="description" 
+          content="Advanced AI detection with dynamic pattern recognition and linguistic analysis" 
+        />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
       <main className="flex-grow bg-gradient-to-b from-gray-50 to-purple-50 py-8">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -18,6 +29,7 @@ const Home: NextPage = () => {
           <TextAnalyzer />
         </div>
       </main>
+      
       <Footer />
     </div>
   );

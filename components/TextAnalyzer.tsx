@@ -1,4 +1,3 @@
-// components/TextAnalyzer.tsx
 import React, { useState } from 'react';
 import { CheckCircle2, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { analyzeText } from '@/utils/textAnalysis';
@@ -41,7 +40,7 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, info }) => (
   </div>
 );
 
-export const TextAnalyzer: React.FC = () => {
+const TextAnalyzer: React.FC = () => {
   const [text, setText] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -52,7 +51,6 @@ export const TextAnalyzer: React.FC = () => {
     
     setIsAnalyzing(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
       const analysisResult = analyzeText(text);
       setResult(analysisResult);
     } catch (error) {
@@ -237,7 +235,7 @@ export const TextAnalyzer: React.FC = () => {
                   {renderRadarChart(result.metrics)}
                   {renderDistributionChart(result)}
                   
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <MetricCard
                       title="Word Variety"
                       value={`${(result.metrics.wordVariety * 100).toFixed(1)}%`}
@@ -264,6 +262,17 @@ export const TextAnalyzer: React.FC = () => {
                       info="Percentage of repeated patterns"
                     />
                   </div>
+
+                  {result.findings.length > 0 && (
+                    <div className="mt-6">
+                      <h4 className="text-lg font-semibold mb-3">Key Findings</h4>
+                      <ul className="list-disc pl-5 space-y-2">
+                        {result.findings.map((finding, index) => (
+                          <li key={index} className="text-gray-700">{finding}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

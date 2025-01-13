@@ -1,5 +1,13 @@
 // utils/textAnalysis.ts
-import { AnalysisResult, PatternMatchType, PatternMatches } from '@/types/analysisTypes';
+import { AnalysisResult } from '@/types/analysisTypes';
+
+type PatternType = 'transitions' | 'formal' | 'academic';
+type PatternCounts = Record<PatternType, number>;
+
+interface TextPattern {
+  patterns: string[];
+  weight: number;
+}
 
 const getEmptyResult = (): AnalysisResult => ({
   score: 0,
@@ -37,7 +45,7 @@ export const analyzeText = (text: string): AnalysisResult => {
   let confidence = 0;
 
   // Pattern detection with enhanced patterns
-  const patterns = {
+  const patterns: Record<PatternType, TextPattern> = {
     transitions: {
       patterns: [
         'furthermore', 'moreover', 'additionally', 'consequently', 'thus',
@@ -65,7 +73,7 @@ export const analyzeText = (text: string): AnalysisResult => {
   };
 
   // Initialize pattern matches
-  const patternMatches: PatternMatches = {
+  const patternCounts: PatternCounts = {
     transitions: 0,
     formal: 0,
     academic: 0
@@ -78,7 +86,7 @@ export const analyzeText = (text: string): AnalysisResult => {
       const matches = (text.match(regex) || []).length;
       if (matches > 0) {
         score += matches * weight;
-        patternMatches[type as PatternMatchType] += matches;
+        patternCounts[type as PatternType] += matches;
       }
     });
   });
@@ -87,7 +95,7 @@ export const analyzeText = (text: string): AnalysisResult => {
   const metrics = {
     wordVariety: uniqueWords.size / words.length,
     avgSentenceLength: words.length / sentences.length,
-    patternDensity: (patternMatches.transitions + patternMatches.formal + patternMatches.academic) / words.length,
+    patternDensity: (patternCounts.transitions + patternCounts.formal + patternCounts.academic) / words.length,
     complexityScore: calculateComplexity(text, sentences),
     repetitivePatterns: calculateRepetitivePatterns(sentences)
   };
@@ -115,10 +123,10 @@ export const analyzeText = (text: string): AnalysisResult => {
     findings,
     patterns: {
       repetitive: metrics.repetitivePatterns > 0.3,
-      formal: patternMatches.formal > 2,
+      formal: patternCounts.formal > 2,
       structured: metrics.avgSentenceLength > 20,
       statistical: hasStatisticalPatterns(text),
-      aiPhrases: patternMatches.academic > 2
+      aiPhrases: patternCounts.academic > 2
     },
     confidence,
     metrics
@@ -139,7 +147,7 @@ const calculateComplexity = (text: string, sentences: string[]): number => {
 };
 
 const calculateRepetitivePatterns = (sentences: string[]): number => {
-  const patterns = sentences.map(s => s.split(' ')[0].toLowerCase());
+  const patterns = sentences.map(s => s.trim().split(' ')[0].toLowerCase());
   const repetitions = patterns.filter((p, i) => patterns.indexOf(p) !== i).length;
   return repetitions / sentences.length;
 };
