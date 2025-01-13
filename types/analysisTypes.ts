@@ -1,3 +1,5 @@
+// types/analysisTypes.ts
+
 export interface AnalysisResult {
   score: number;
   findings: string[];
@@ -36,3 +38,6 @@ export interface LanguageAnalysis {
   findings: string[];
   isFormal: boolean;
 }
+
+export type PatternMatchType = 'transitions' | 'formal' | 'academic';
+export type PatternMatches = Record<PatternMatchType, number>;
