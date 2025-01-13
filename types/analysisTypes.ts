@@ -9,6 +9,13 @@ export interface AnalysisResult {
     aiPhrases: boolean;
   };
   confidence: number;
+  metrics: {
+    wordVariety: number;
+    avgSentenceLength: number;
+    patternDensity: number;
+    complexityScore: number;
+    repetitivePatterns: number;
+  };
 }
 
 export interface PatternScore {
